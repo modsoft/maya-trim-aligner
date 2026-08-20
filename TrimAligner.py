@@ -354,51 +354,51 @@ def get_maya_main_window():
     return wrapInstance(int(ptr), QtWidgets.QWidget)
 
 
-def _cog_icon(logical_size=16):
-    """Paint a gear icon so the config control can stay a regular push button."""
-    dpr = 1.0
-    app = QtWidgets.QApplication.instance()
-    if app is not None:
-        try:
-            dpr = float(app.devicePixelRatio())
-        except Exception:
-            dpr = 1.0
-    pixel = max(16, int(round(logical_size * dpr)))
-    pixmap = QtGui.QPixmap(pixel, pixel)
-    pixmap.fill(QtCore.Qt.transparent)
-
-    painter = QtGui.QPainter(pixmap)
-    painter.setRenderHint(QtGui.QPainter.Antialiasing)
-    painter.setPen(QtCore.Qt.NoPen)
-    color = QtGui.QColor(210, 210, 210)
-    if app is not None:
-        color = app.palette().buttonText().color()
-    painter.setBrush(color)
-    painter.translate(pixel / 2.0, pixel / 2.0)
-
-    teeth = 8
-    tooth_w = pixel * 0.18
-    tooth_h = pixel * 0.42
-    for i in range(teeth):
-        painter.save()
-        painter.rotate(i * (360.0 / teeth))
-        painter.drawRoundedRect(
-            QtCore.QRectF(-tooth_w / 2.0, -tooth_h, tooth_w, tooth_h * 2.0),
-            1.2 * dpr,
-            1.2 * dpr,
+def _cog_path(radius):
+    """Filled 8-tooth gear, centered at the origin."""
+    hub = radius * 0.62
+    hole = radius * 0.28
+    tooth_w = radius * 0.44
+    gear = QtGui.QPainterPath()
+    gear.setFillRule(QtCore.Qt.WindingFill)
+    gear.addEllipse(QtCore.QRectF(-hub, -hub, hub * 2.0, hub * 2.0))
+    for i in range(8):
+        tooth = QtGui.QPainterPath()
+        tooth.addRoundedRect(
+            QtCore.QRectF(-tooth_w / 2.0, -radius, tooth_w, radius * 2.0),
+            radius * 0.1,
+            radius * 0.1,
         )
-        painter.restore()
+        xform = QtGui.QTransform()
+        xform.rotate(i * 45.0)
+        gear.addPath(xform.map(tooth))
+    hole_path = QtGui.QPainterPath()
+    hole_path.addEllipse(QtCore.QRectF(-hole, -hole, hole * 2.0, hole * 2.0))
+    return gear.subtracted(hole_path)
 
-    painter.drawEllipse(QtCore.QPointF(0, 0), pixel * 0.28, pixel * 0.28)
-    painter.setCompositionMode(QtGui.QPainter.CompositionMode_Clear)
-    painter.drawEllipse(QtCore.QPointF(0, 0), pixel * 0.12, pixel * 0.12)
-    painter.end()
 
-    try:
-        pixmap.setDevicePixelRatio(dpr)
-    except Exception:
-        pass
-    return QtGui.QIcon(pixmap)
+class CogButton(QtWidgets.QPushButton):
+    """Maya stylesheets clip QPushButton icons; paint the cog on the chrome instead."""
+
+    def __init__(self, parent=None):
+        super(CogButton, self).__init__("", parent)
+        self.setToolTip("Edit strip config / presets")
+        self.setFixedSize(28, 28)
+        self.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.setCursor(QtCore.Qt.PointingHandCursor)
+
+    def paintEvent(self, event):
+        super(CogButton, self).paintEvent(event)
+        painter = QtGui.QPainter(self)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+        painter.translate(self.width() / 2.0, self.height() / 2.0)
+        if self.isDown():
+            painter.translate(1, 1)
+        color = self.palette().color(QtGui.QPalette.ButtonText)
+        painter.setPen(QtCore.Qt.NoPen)
+        painter.setBrush(color)
+        painter.drawPath(_cog_path(min(self.width(), self.height()) * 0.32))
+        painter.end()
 
 
 def _parse_heights(text):
@@ -591,11 +591,7 @@ class UVStripAligner(QtWidgets.QDialog):
         header = QtWidgets.QHBoxLayout()
         self.preset_label = QtWidgets.QLabel("")
         header.addWidget(self.preset_label, 1)
-        config_btn = QtWidgets.QPushButton()
-        config_btn.setIcon(_cog_icon(16))
-        config_btn.setIconSize(QtCore.QSize(16, 16))
-        config_btn.setToolTip("Edit strip config / presets")
-        config_btn.setFixedSize(28, 28)
+        config_btn = CogButton(self)
         config_btn.clicked.connect(self._open_settings)
         header.addWidget(config_btn)
         layout.addLayout(header)
