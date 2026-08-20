@@ -26,7 +26,7 @@ To create a shelf button: use the same code above, with your corrected path.
 
 ## Strip config
 
-Click **Cfg** in the tool window to set texture size and strip heights (pixels, top → bottom).
+Click the settings icon in the tool window to set texture size and strip heights (pixels, top → bottom).
 
 Presets are saved next to the script in `trim_aligner_presets.json` and reload between sessions. Use the dropdown, **Save**, **Save As…**, and **Delete**.
 
