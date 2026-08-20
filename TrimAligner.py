@@ -33,7 +33,7 @@ except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui
     from shiboken2 import wrapInstance
 
-__version__ = "2.7"
+__version__ = "0.1"
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 _PRESETS_PATH = os.path.join(_SCRIPT_DIR, "trim_aligner_presets.json")
 
