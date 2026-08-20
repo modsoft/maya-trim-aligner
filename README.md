@@ -1,6 +1,6 @@
 # maya-trim-aligner
 
-**TrimAligner** by Trey McNair — a Maya tool for aligning UV shells to trim-sheet strip layouts.
+a Maya tool for aligning UV shells to trim-sheet strip layouts.
 
 Select UVs or mesh faces, open the UI, then auto-align, shift, or smart-pack shells into your strip rows.
 
