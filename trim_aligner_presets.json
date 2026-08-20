@@ -1,0 +1,13 @@
+{
+  "active": "Default 2048",
+  "presets": {
+    "Default 2048": {
+      "texture_size": 2048,
+      "strip_pixel_heights": [32, 32, 64, 128, 256, 512, 1024]
+    },
+    "Default 4096": {
+      "texture_size": 4096,
+      "strip_pixel_heights": [64, 64, 128, 256, 512, 1024, 2048]
+    }
+  }
+}
