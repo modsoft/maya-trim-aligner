@@ -354,6 +354,53 @@ def get_maya_main_window():
     return wrapInstance(int(ptr), QtWidgets.QWidget)
 
 
+def _cog_icon(logical_size=16):
+    """Paint a gear icon so the config control can stay a regular push button."""
+    dpr = 1.0
+    app = QtWidgets.QApplication.instance()
+    if app is not None:
+        try:
+            dpr = float(app.devicePixelRatio())
+        except Exception:
+            dpr = 1.0
+    pixel = max(16, int(round(logical_size * dpr)))
+    pixmap = QtGui.QPixmap(pixel, pixel)
+    pixmap.fill(QtCore.Qt.transparent)
+
+    painter = QtGui.QPainter(pixmap)
+    painter.setRenderHint(QtGui.QPainter.Antialiasing)
+    painter.setPen(QtCore.Qt.NoPen)
+    color = QtGui.QColor(210, 210, 210)
+    if app is not None:
+        color = app.palette().buttonText().color()
+    painter.setBrush(color)
+    painter.translate(pixel / 2.0, pixel / 2.0)
+
+    teeth = 8
+    tooth_w = pixel * 0.18
+    tooth_h = pixel * 0.42
+    for i in range(teeth):
+        painter.save()
+        painter.rotate(i * (360.0 / teeth))
+        painter.drawRoundedRect(
+            QtCore.QRectF(-tooth_w / 2.0, -tooth_h, tooth_w, tooth_h * 2.0),
+            1.2 * dpr,
+            1.2 * dpr,
+        )
+        painter.restore()
+
+    painter.drawEllipse(QtCore.QPointF(0, 0), pixel * 0.28, pixel * 0.28)
+    painter.setCompositionMode(QtGui.QPainter.CompositionMode_Clear)
+    painter.drawEllipse(QtCore.QPointF(0, 0), pixel * 0.12, pixel * 0.12)
+    painter.end()
+
+    try:
+        pixmap.setDevicePixelRatio(dpr)
+    except Exception:
+        pass
+    return QtGui.QIcon(pixmap)
+
+
 def _parse_heights(text):
     parts = [p.strip() for p in text.replace(";", ",").split(",") if p.strip()]
     if not parts:
@@ -544,8 +591,9 @@ class UVStripAligner(QtWidgets.QDialog):
         header = QtWidgets.QHBoxLayout()
         self.preset_label = QtWidgets.QLabel("")
         header.addWidget(self.preset_label, 1)
-        config_btn = QtWidgets.QToolButton()
-        config_btn.setText("Cfg")
+        config_btn = QtWidgets.QPushButton()
+        config_btn.setIcon(_cog_icon(16))
+        config_btn.setIconSize(QtCore.QSize(16, 16))
         config_btn.setToolTip("Edit strip config / presets")
         config_btn.setFixedSize(28, 28)
         config_btn.clicked.connect(self._open_settings)
