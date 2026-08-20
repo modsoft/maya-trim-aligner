@@ -4,7 +4,7 @@ a Maya tool for aligning UV shells to trim-sheet strip layouts.
 
 Select UVs or mesh faces, open the UI, then auto-align, shift, or smart-pack shells into your strip rows.
 
-<img width="735" height="348" alt="image" src="https://github.com/user-attachments/assets/d106e501-a24f-42f4-ad9a-7dea2a8252c0" />
+<img width="460" height="230" alt="image" src="https://github.com/user-attachments/assets/2dace1b8-7740-4aa4-b327-fa118853feac" />
 
 ## Requirements
 
